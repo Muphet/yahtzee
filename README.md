@@ -2,6 +2,7 @@
 Yahtzee app
 
 Current version: v0.1.0-alpha
+
 This is currently in pre-release and can be played here: http://dev.muramune.com/yahtzee/
 
 Major tasks that need to be completed:
