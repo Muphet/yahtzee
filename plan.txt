@@ -1,0 +1,140 @@
+YAHTZEE
+
+State Object:
+	Dice Array:
+		Die Objects (1-5):
+			Face (0-6; Default: 0)
+			Hold Status (true/false, Default: false)
+	Rolls Made (0-3; Default: 0)
+	Scores Taken Object:
+		Ones (-2-5; Default: -2)
+		Twos (-2-10; Default: -2)
+		Threes (-2-15; Default: -2)
+		Fours (-2-20; Default: -2)
+		Fives (-2-25; Default: -2)
+		Sixes (-2-30; Default: -2)
+		Bonus (0,35; Default: 0)
+		3-of-a-Kind (-2-30; Default: -2)
+		4-of-a-Kind (-2-30; Default: -2)
+		Full House (-2,0,25; Default: -2)
+		Small Straight (-2,0,30; Default: -2)
+		Large Straight (-2,0,40; Default: -2)
+		Chance (-2,5-30; Default: -2)
+		Yahtzee (-2,0,50; Default: -2)
+		Yahtzee Bonus (0,100,200,300,400,500,600,700,800,900,1000,1100,1200; Default: 0)
+	Screen ('Game','Rules','Final'; Default: 'Game')
+	Place (1-4; Default: 4)
+	Dice Rolling (true/false; Default: false)
+	(NOTE) - A Scores Taken Object property value of -2 indicates a disabled selection
+
+Actions:
+	Roll Dice (allowed when Rolls Made property = 0-2)
+		Sets Dice Rolling property to true, which disables all other possible actions and animates unheld dice for a set period of time, then activates Finish Dice Roll action
+	Finish Dice Roll
+		Sets Dice Rolling property to false
+		Randomizes Face property (integer value from 1-6) of each Die Object with Hold Status property of false
+		Change Scores Taken Object property values of legal options that are currently -2 to -1
+		Change Scores Taken Object property values of illegal options that are currently -1 to -2
+		Increases Rolls Made property value by 1
+	Hold/Unhold Die (allowed for each Die Object when Rolls Made property = 1-2)
+		Changes Hold Status property of selected Die Object (from true to false or false to true)
+	Select Score (allowed for each Scores Taken Object property with value of -1 and when Rolls Made property = 1-3)
+		Changes value of selected Scores Taken Object property based on specific property formula
+		If not all Scores Taken Object properties > -1, set Rolls Made property value to 0
+		If all Scores Taken Object properties > -1, activate Finish Game action
+	View Rules (allowed when Screen property = 'Game')
+		Changes value of Screen property to 'Rules'
+	Return to Game (allowed when Screen property = 'Rules')
+		Changes value of Screen property to 'Game'
+	Finish Game
+		Change Screen property to 'Final', determine Place property value and set it
+			Place property value determined by comparing score to top scores
+		If Place property > 4, include high score submission on final screen
+	New Game (allowed when Screen property = 'Game' or 'Final', automatically activated upon high score submission)
+		Changes values of all properties to default
+
+Score Taken Object property formulas:
+	Ones:
+		1 point for each Die Object with Face property value of 1
+		if Joker is activated with Yahtzee of 1s and this is not already taken, this must be taken
+	Twos:
+		2 points for each Die Object with Face property value of 2
+		if Joker is activated with Yahtzee of 2s and this is not already taken, this must be taken
+	Threes:
+		3 points for each Die Object with Face property value of 3
+		if Joker is activated with Yahtzee of 3s and this is not already taken, this must be taken
+	Fours:
+		4 points for each Die Object with Face property value of 4
+		if Joker is activated with Yahtzee of 4s and this is not already taken, this must be taken
+	Fives:
+		5 points for each Die Object with Face property value of 5
+		if Joker is activated with Yahtzee of 5s and this is not already taken, this must be taken
+	Sixes:
+		6 points for each Die Object with Face property value of 6
+		if Joker is activated with Yahtzee of 6s and this is not already taken, this must be taken
+	Bonus:
+		if sum of Ones-Sixes Face properties < 63, 0 points,
+		else, 35 points
+	3-of-a-Kind:
+		if < 3 Die Object Face property values match, 0 points,
+		else, points = sum of all Die Object Face property values
+	4-of-a-Kind:
+		if < 4 Die Object Face property values match, 0 points,
+		else, points = sum of all Die Object Face property values
+	Full House
+		if not 3 Die Object Face property values match and other 2 Die Object Face property values match, 0 points
+		else, 25 points
+		if Joker is activated and appropriate Ones-Sixes score is taken, this can be taken for 25 points
+	Small Straight
+		if not 4 consecutive Die Object Face property values, 0 points
+		else, 30 points
+		if Joker is activated and appropriate Ones-Sixes score is taken, this can be taken for 30 points
+	Large Straight
+		if not 5 consecutive Die Object Face property values, 0 points
+		else, 40 points
+		if Joker is activated and appropriate Ones-Sixes score is taken, this can be taken for 40 points
+	Chance
+		points = sum of all Die Object Face property values
+	Yahtzee
+		if not 5 Die Object Face property values match, 0 points
+		else, 50 points
+	Yahtzee Bonus
+		if Scores Taken Object Yahtzee property value is 50 and another Yahtzee occurs, add 100 points
+	(NOTE) - If Scores Taken Object Yahtzee property value is 0 or 50 and another Yahtzee occurs, activate Joker
+
+Display:
+	Screen property = 'Game':
+		Scoring Categories:
+			<div> with what score would be if selected
+				No text and grayed out if not selectable
+			<div> with scoring label
+				Grayed out if not selectable
+			<div> with score taken in this category
+				Blank if no score taken in category yet
+			Upper Scores:
+				Ones, Twos, Threes, Fours, Fives, Sixes, Bonus
+			Lower Scores:
+				3-of-a-Kind, 4-of-a-Kind, Full House, Small Straight, Large Straight, Yahtzee, Yahtzee Bonus
+		Score Display
+		Roll Button
+			Disabled if Rolls Made property = 3
+		Rolls Made Display
+		Dice Display
+			Create <div> grid templates for each die
+				3 <div> x 3 <div> with pips of circular <div>s
+			Set up die rolling animations
+		High Score Display
+			Top 3 high scores, taken from SQL database
+			Name, Score, Date
+			In the case of tied scores, earlier date takes precedence
+		Rules Button
+		New Game Button
+	Screen property = 'Rules'
+		Rules Display
+		Back to Game Button
+	Screen property = 'Final'
+		Final Score Display
+		High Score Submission
+			Name input (three uppercase characters, like in Arcade games)
+			Submit Button
+		New Game Button
